@@ -1,6 +1,11 @@
 # VEVOR-diesel-air-heater-for-Windows
 newer/common AirHeater-style transport on windows
 
+Install:
+
+py -m pip install bleak rich
+
+
 Run it:       
 
 cd C:\Users\XXXXX\VEVOR-diesel-air-heater-for-Windows                              
