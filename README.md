@@ -27,3 +27,6 @@ on
 vent
 
 off
+
+
+The Temp is the Only part decoded at the moment. 
