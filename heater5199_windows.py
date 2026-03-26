@@ -13,6 +13,10 @@ class Heater5199:
         self.last_rx = None
         self.notify_event = asyncio.Event()
 
+        self.last_state = None
+        self.last_mode = None
+        self.last_set_temp_f = None
+
     async def resolve_device(self):
         devices = await BleakScanner.discover(timeout=8.0)
 
@@ -88,8 +92,7 @@ class Heater5199:
             return None
 
     def decode_status(self, frame: bytes):
-        # Conservative decoder: only prints values we have evidence for.
-        if len(frame) < 8:
+        if len(frame) < 21:
             return
 
         if frame[0] != 0xAB or frame[1] != 0xBA:
@@ -98,35 +101,29 @@ class Heater5199:
         if frame[3] != 0xCC:
             return
 
-        print("Decoded:")
-        print(f"  header: AB BA")
-        print(f"  type:   0x{frame[3]:02X}")
+        state = frame[4]
+        mode = frame[5]
+        set_temp_f = frame[6]
 
-        # Based on observed frames and protocol family:
-        state = frame[4] if len(frame) > 4 else None
-        mode = frame[5] if len(frame) > 5 else None
-        level_like = frame[6] if len(frame) > 6 else None
+        self.last_state = state
+        self.last_mode = mode
+        self.last_set_temp_f = set_temp_f
 
         state_map = {
-            0x00: "off",
-            0x01: "heating",
-            0x02: "cooling",
-            0x04: "ventilation",
+            0x00: "OFF",
+            0x01: "HEATING",
+            0x02: "COOLING",
+            0x04: "VENT",
         }
 
-        state_text = state_map.get(state, f"unknown(0x{state:02X})" if state is not None else "n/a")
-        print(f"  state:  {state_text}")
-        print(f"  mode:   0x{mode:02X}" if mode is not None else "  mode:   n/a")
-        print(f"  level?: 0x{level_like:02X}" if level_like is not None else "  level?: n/a")
+        state_text = state_map.get(state, f"UNKNOWN(0x{state:02X})")
 
-        # Heuristic fields for your clone, printed but not claimed as final truth
-        if len(frame) > 11:
-            print(f"  byte9:  0x{frame[9]:02X}")
-            print(f"  byte10: 0x{frame[10]:02X}")
-            print(f"  byte11: 0x{frame[11]:02X}")
-
-        if len(frame) > 20:
-            print(f"  csum:   0x{frame[-1]:02X}")
+        print(
+            f"Status | State: {state_text} | "
+            f"Mode: 0x{mode:02X} | "
+            f"Set Temp: {set_temp_f} F | "
+            f"Checksum: 0x{frame[-1]:02X}"
+        )
 
     async def status(self):
         return await self.send(self.make_baab(0xCC))
@@ -138,7 +135,6 @@ class Heater5199:
         return await self.send(self.make_baab(0xBB, 0xA4, 0x00, 0x00))
 
     async def off(self):
-        # known safe-ish app-like sequence for this protocol family
         await self.vent()
         await asyncio.sleep(0.6)
         await self.on()
