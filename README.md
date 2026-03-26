@@ -10,9 +10,15 @@ py heater5199_windows.py "Heater5199"
 Then test these:                 
 
 status
+
 up
+
 up
+
 down
+
 on
+
 vent
+
 off
