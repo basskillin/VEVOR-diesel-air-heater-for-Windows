@@ -3,6 +3,12 @@ newer/common AirHeater-style transport on windows
 
 Install:
 
+Replace:
+
+    WRITE_UUID = " "
+    NOTIFY_UUID = " "
+ 
+    
 py -m pip install bleak rich
 
 
