@@ -9,30 +9,29 @@ Replace:
     NOTIFY_UUID = " "
  
     
-py -m pip install bleak rich
-
+    py -m pip install bleak rich
 
 Run it:       
 
-cd C:\Users\XXXXX\VEVOR-diesel-air-heater-for-Windows                              
+ cd C:\Users\XXXXX\VEVOR-diesel-air-heater-for-Windows                              
 
-py heater5199_windows.py "Heater5199" 
+    py heater5199_windows.py "Heater5199" 
 
 Then test these:                 
 
-status
+    status
 
-up
+    up
 
-up
+    up
 
-down
+    down
 
-on
+    on
 
-vent
+    vent
 
-off
+    off
 
 
 The Temp is the Only part decoded at the moment. 
